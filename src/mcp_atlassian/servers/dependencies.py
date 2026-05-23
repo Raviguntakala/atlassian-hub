@@ -255,10 +255,9 @@ def _resolve_oauth_access_token(fallback_token: str, service: str) -> str:
         access_token = get_access_token()
     except (RuntimeError, LookupError) as e:
         logger.debug(
-            "OAuth token resolution via FastMCP context failed for %s; "
-            "using request token (%s)",
+            "OAuth context lookup failed for %s (%s); falling back to request credentials",
             service,
-            e,
+            type(e).__name__,
         )
         return fallback_token
 
@@ -622,10 +621,12 @@ async def _get_fetcher(ctx: Context, spec: _ServiceSpec) -> Any:
 
             cloud_id_info = f" with cloudId {user_cloud_id}" if user_cloud_id else ""
             logger.info(
-                f"Creating user-specific {spec.name}Fetcher "
-                f"(type: {resolved_auth_type}) for user "
-                f"{user_email or 'unknown'} "
-                f"(token ...<redacted>){cloud_id_info}"
+                "Creating user-specific %sFetcher (type: %s) for user %s "
+                "(token ...<redacted>)%s",
+                spec.name,
+                resolved_auth_type,
+                user_email or "unknown",
+                cloud_id_info,
             )
             user_config = _create_user_config_for_fetcher(
                 base_config=global_config,

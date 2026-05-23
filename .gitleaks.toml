@@ -1,0 +1,28 @@
+title = "mcp-atlassian gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Suppress false positives from test fixtures, docs examples, and upstream commits"
+
+commits = [
+    # Upstream commit: multi-user OAuth implementation — atlassian-api-token false positive in dependencies.py
+    "315982dcaecb3bbe9edda93dbb3be7efecb6a5d4",
+    # Upstream commit: Jira transition type fix — generic-api-key false positive in transitions.py
+    "76dee99aaa7d181977e5ac5653ab9590c39addf5",
+]
+
+paths = [
+    # Test files use fake/placeholder credentials by design
+    '''tests/''',
+    # Docs use example placeholders like "your_pat_token"
+    '''docs/''',
+]
+
+regexes = [
+    # Fake JWT used in pagination test fixtures
+    '''eyJhbGciOiJIUzI1NiJ9\.abc123''',
+    # Fake API key used in custom-headers test fixture
+    '''sk-1234567890abcdef''',
+]
