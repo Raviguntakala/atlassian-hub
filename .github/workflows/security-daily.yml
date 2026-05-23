@@ -67,25 +67,23 @@ jobs:
           version: "0.6.10"
           enable-cache: true
 
+      - name: Install Snyk CLI
+        uses: snyk/actions/setup@master
+
       - name: Export requirements for Snyk
         run: uv export --no-dev --format requirements-txt > requirements.txt
 
       - name: Run Snyk dependency scan
-        uses: snyk/actions/python@master
+        run: snyk test --file=requirements.txt --severity-threshold=medium --sarif-file-output=snyk-deps.sarif
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          args: --sarif-file-output=snyk-deps.sarif --severity-threshold=medium
 
       - name: Run Snyk Code SAST
-        uses: snyk/actions/python@master
+        run: snyk code test --severity-threshold=medium --sarif-file-output=snyk-code.sarif
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-        with:
-          command: code test
-          args: --sarif-file-output=snyk-code.sarif --severity-threshold=medium
 
       - name: Upload Snyk SARIF to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
