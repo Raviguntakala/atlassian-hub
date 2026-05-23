@@ -1,5 +1,5 @@
 [project]
-name = "mcp-atlassian"
+name = "atlassian-hub"
 dynamic = ["version"]
 description = "The Model Context Protocol (MCP) Atlassian integration is an open-source implementation that bridges Atlassian products (Jira and Confluence) with AI language models following Anthropic's MCP specification. This project enables secure, contextual AI interactions with Atlassian tools while maintaining data privacy and security. Key features include:"
 readme = "README.md"
@@ -50,7 +50,7 @@ requires = ["hatchling", "uv-dynamic-versioning>=0.7.0"]
 build-backend = "hatchling.build"
 
 [project.scripts]
-mcp-atlassian = "mcp_atlassian:main"
+atlassian-hub = "atlassian_hub:main"
 
 [dependency-groups]
 dev = [
@@ -115,7 +115,7 @@ dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S", "ANN", "B017"]
 "tests/fixtures/*.py" = ["E501"]
-"src/mcp_atlassian/server.py" = ["E501"]
+"src/atlassian_hub/server.py" = ["E501"]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -157,7 +157,7 @@ module = "markdownify.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "src.mcp_atlassian.*"
+module = "src.atlassian_hub.*"
 disallow_untyped_defs = false
 
 [tool.hatch.version]

@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "mcp-atlassian.name" -}}
+{{- define "atlassian-hub.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "mcp-atlassian.fullname" -}}
+{{- define "atlassian-hub.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -24,16 +24,16 @@ Create a default fully qualified app name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "mcp-atlassian.chart" -}}
+{{- define "atlassian-hub.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "mcp-atlassian.labels" -}}
-helm.sh/chart: {{ include "mcp-atlassian.chart" . }}
-{{ include "mcp-atlassian.selectorLabels" . }}
+{{- define "atlassian-hub.labels" -}}
+helm.sh/chart: {{ include "atlassian-hub.chart" . }}
+{{ include "atlassian-hub.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -43,17 +43,17 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "mcp-atlassian.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "mcp-atlassian.name" . }}
+{{- define "atlassian-hub.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "atlassian-hub.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "mcp-atlassian.serviceAccountName" -}}
+{{- define "atlassian-hub.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "mcp-atlassian.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "atlassian-hub.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}

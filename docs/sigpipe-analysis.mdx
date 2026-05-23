@@ -100,7 +100,7 @@ signal.signal(signal.SIGPIPE, graceful_shutdown_handler)
 ### What the Code Does Now
 
 ```python
-# src/mcp_atlassian/utils/lifecycle.py (line 40-45)
+# src/atlassian_hub/utils/lifecycle.py (line 40-45)
 if hasattr(signal, "SIGPIPE"):
     signal.signal(signal.SIGPIPE, signal_handler)
     logger.debug("SIGPIPE handler registered")

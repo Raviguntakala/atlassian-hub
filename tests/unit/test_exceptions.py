@@ -6,7 +6,7 @@ import pickle
 
 import pytest
 
-from src.mcp_atlassian.exceptions import MCPAtlassianAuthenticationError
+from src.atlassian_hub.exceptions import MCPAtlassianAuthenticationError
 
 
 class TestMCPAtlassianAuthenticationError:

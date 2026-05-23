@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, call, patch
 
 import pytest
 
-from mcp_atlassian.jira.client import JiraClient
-from mcp_atlassian.jira.config import JiraConfig
+from atlassian_hub.jira.client import JiraClient
+from atlassian_hub.jira.config import JiraConfig
 
 
 class DeepcopyMock(MagicMock):
@@ -23,9 +23,9 @@ class DeepcopyMock(MagicMock):
 def test_init_with_basic_auth():
     """Test initializing the client with basic auth configuration."""
     with (
-        patch("mcp_atlassian.jira.client.Jira") as mock_jira,
+        patch("atlassian_hub.jira.client.Jira") as mock_jira,
         patch(
-            "mcp_atlassian.jira.client.configure_ssl_verification"
+            "atlassian_hub.jira.client.configure_ssl_verification"
         ) as mock_configure_ssl,
     ):
         config = JiraConfig(
@@ -66,9 +66,9 @@ def test_init_with_basic_auth():
 def test_init_with_token_auth():
     """Test initializing the client with token auth configuration."""
     with (
-        patch("mcp_atlassian.jira.client.Jira") as mock_jira,
+        patch("atlassian_hub.jira.client.Jira") as mock_jira,
         patch(
-            "mcp_atlassian.jira.client.configure_ssl_verification"
+            "atlassian_hub.jira.client.configure_ssl_verification"
         ) as mock_configure_ssl,
     ):
         config = JiraConfig(
@@ -106,9 +106,9 @@ def test_init_with_token_auth():
 def test_init_from_env():
     """Test initializing the client from environment variables."""
     with (
-        patch("mcp_atlassian.jira.config.JiraConfig.from_env") as mock_from_env,
-        patch("mcp_atlassian.jira.client.Jira") as mock_jira,
-        patch("mcp_atlassian.jira.client.configure_ssl_verification"),
+        patch("atlassian_hub.jira.config.JiraConfig.from_env") as mock_from_env,
+        patch("atlassian_hub.jira.client.Jira") as mock_jira,
+        patch("atlassian_hub.jira.client.configure_ssl_verification"),
     ):
         mock_config = MagicMock()
         mock_config.auth_type = "basic"  # needed for the if condition
@@ -123,8 +123,8 @@ def test_init_from_env():
 def test_clean_text():
     """Test the _clean_text method."""
     with (
-        patch("mcp_atlassian.jira.client.Jira"),
-        patch("mcp_atlassian.jira.client.configure_ssl_verification"),
+        patch("atlassian_hub.jira.client.Jira"),
+        patch("atlassian_hub.jira.client.configure_ssl_verification"),
     ):
         client = JiraClient(
             config=JiraConfig(
@@ -149,12 +149,12 @@ def _test_get_paged(method: Literal["get", "post"]):
     """Test the get_paged method."""
     with (
         patch(
-            "mcp_atlassian.jira.client.Jira.get", new_callable=DeepcopyMock
+            "atlassian_hub.jira.client.Jira.get", new_callable=DeepcopyMock
         ) as mock_get,
         patch(
-            "mcp_atlassian.jira.client.Jira.post", new_callable=DeepcopyMock
+            "atlassian_hub.jira.client.Jira.post", new_callable=DeepcopyMock
         ) as mock_post,
-        patch("mcp_atlassian.jira.client.configure_ssl_verification"),
+        patch("atlassian_hub.jira.client.configure_ssl_verification"),
     ):
         config = JiraConfig(
             url="https://test.atlassian.net",
@@ -231,7 +231,7 @@ def test_get_paged_post():
 
 def test_get_paged_without_cloud():
     """Test the get_paged method without cloud."""
-    with patch("mcp_atlassian.jira.client.configure_ssl_verification"):
+    with patch("atlassian_hub.jira.client.configure_ssl_verification"):
         config = JiraConfig(
             url="https://jira.example.com",
             auth_type="pat",
@@ -252,9 +252,9 @@ def test_init_sets_proxies_and_no_proxy(monkeypatch):
     mock_session = MagicMock()
     mock_session.proxies = {}  # Use a real dict for proxies
     mock_jira._session = mock_session
-    monkeypatch.setattr("mcp_atlassian.jira.client.Jira", lambda **kwargs: mock_jira)
+    monkeypatch.setattr("atlassian_hub.jira.client.Jira", lambda **kwargs: mock_jira)
     monkeypatch.setattr(
-        "mcp_atlassian.jira.client.configure_ssl_verification", lambda **kwargs: None
+        "atlassian_hub.jira.client.configure_ssl_verification", lambda **kwargs: None
     )
 
     # Patch environment
@@ -284,9 +284,9 @@ def test_init_no_proxies(monkeypatch):
     mock_session = MagicMock()
     mock_session.proxies = {}  # Use a real dict for proxies
     mock_jira._session = mock_session
-    monkeypatch.setattr("mcp_atlassian.jira.client.Jira", lambda **kwargs: mock_jira)
+    monkeypatch.setattr("atlassian_hub.jira.client.Jira", lambda **kwargs: mock_jira)
     monkeypatch.setattr(
-        "mcp_atlassian.jira.client.configure_ssl_verification", lambda **kwargs: None
+        "atlassian_hub.jira.client.configure_ssl_verification", lambda **kwargs: None
     )
 
     config = JiraConfig(
@@ -302,8 +302,8 @@ def test_init_no_proxies(monkeypatch):
 def test_jira_client_passes_timeout_to_constructor():
     """Test that JiraClient passes custom timeout to Jira constructor."""
     with (
-        patch("mcp_atlassian.jira.client.Jira") as mock_jira,
-        patch("mcp_atlassian.jira.client.configure_ssl_verification"),
+        patch("atlassian_hub.jira.client.Jira") as mock_jira,
+        patch("atlassian_hub.jira.client.configure_ssl_verification"),
     ):
         config = JiraConfig(
             url="https://test.atlassian.net",
@@ -327,8 +327,8 @@ def test_jira_client_passes_timeout_to_constructor():
 def test_jira_client_pat_disables_trust_env():
     """Test that PAT auth disables trust_env to prevent .netrc override (#860)."""
     with (
-        patch("mcp_atlassian.jira.client.Jira") as mock_jira,
-        patch("mcp_atlassian.jira.client.configure_ssl_verification"),
+        patch("atlassian_hub.jira.client.Jira") as mock_jira,
+        patch("atlassian_hub.jira.client.configure_ssl_verification"),
     ):
         mock_session = MagicMock()
         mock_session.trust_env = True  # Default
@@ -346,12 +346,12 @@ def test_jira_client_pat_disables_trust_env():
 
 def test_jira_client_oauth_disables_trust_env():
     """Test that OAuth auth disables trust_env to prevent .netrc override (#860)."""
-    from mcp_atlassian.utils.oauth import OAuthConfig
+    from atlassian_hub.utils.oauth import OAuthConfig
 
     with (
-        patch("mcp_atlassian.jira.client.Jira") as mock_jira,
-        patch("mcp_atlassian.jira.client.configure_ssl_verification"),
-        patch("mcp_atlassian.jira.client.configure_oauth_session", return_value=True),
+        patch("atlassian_hub.jira.client.Jira") as mock_jira,
+        patch("atlassian_hub.jira.client.configure_ssl_verification"),
+        patch("atlassian_hub.jira.client.configure_oauth_session", return_value=True),
     ):
         mock_session = MagicMock()
         mock_session.trust_env = True
@@ -380,8 +380,8 @@ def test_jira_client_oauth_disables_trust_env():
 def test_jira_client_basic_auth_preserves_trust_env():
     """Test that basic auth preserves trust_env (netrc valid for basic auth)."""
     with (
-        patch("mcp_atlassian.jira.client.Jira") as mock_jira,
-        patch("mcp_atlassian.jira.client.configure_ssl_verification"),
+        patch("atlassian_hub.jira.client.Jira") as mock_jira,
+        patch("atlassian_hub.jira.client.configure_ssl_verification"),
     ):
         mock_session = MagicMock()
         mock_session.trust_env = True

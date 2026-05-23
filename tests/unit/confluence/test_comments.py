@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from mcp_atlassian.confluence.comments import CommentsMixin
-from mcp_atlassian.models.confluence import ConfluenceComment
+from atlassian_hub.confluence.comments import CommentsMixin
+from atlassian_hub.models.confluence import ConfluenceComment
 from tests.fixtures.confluence_mocks import (
     MOCK_COMMENT_REPLY_V1_RESPONSE,
     MOCK_COMMENT_REPLY_V2_RESPONSE,
@@ -17,7 +17,7 @@ from tests.fixtures.confluence_mocks import (
 def comments_mixin(confluence_client):
     """Create a CommentsMixin instance for testing."""
     with patch(
-        "mcp_atlassian.confluence.comments.ConfluenceClient.__init__"
+        "atlassian_hub.confluence.comments.ConfluenceClient.__init__"
     ) as mock_init:
         mock_init.return_value = None
         mixin = CommentsMixin()

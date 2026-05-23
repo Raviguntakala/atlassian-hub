@@ -4,8 +4,8 @@ import pytest
 from fastmcp.exceptions import ToolError
 from requests.exceptions import HTTPError
 
-from mcp_atlassian.exceptions import MCPAtlassianAuthenticationError
-from mcp_atlassian.utils.decorators import (
+from atlassian_hub.exceptions import MCPAtlassianAuthenticationError
+from atlassian_hub.utils.decorators import (
     check_write_access,
     handle_auth_errors,
     handle_tool_errors,

@@ -6,8 +6,8 @@ import uuid
 
 import pytest
 
-from mcp_atlassian.jira import JiraFetcher
-from mcp_atlassian.jira.config import JiraConfig
+from atlassian_hub.jira import JiraFetcher
+from atlassian_hub.jira.config import JiraConfig
 
 from .conftest import AuthVariant, CloudInstanceInfo, CloudResourceTracker
 

@@ -8,10 +8,10 @@ from unittest.mock import MagicMock, patch
 import pytest
 from requests.exceptions import ProxyError
 
-from mcp_atlassian.confluence.client import ConfluenceClient
-from mcp_atlassian.confluence.config import ConfluenceConfig
-from mcp_atlassian.jira.client import JiraClient
-from mcp_atlassian.jira.config import JiraConfig
+from atlassian_hub.confluence.client import ConfluenceClient
+from atlassian_hub.confluence.config import ConfluenceConfig
+from atlassian_hub.jira.client import JiraClient
+from atlassian_hub.jira.config import JiraConfig
 from tests.utils.base import BaseAuthTest
 from tests.utils.mocks import MockEnvironment
 
@@ -23,9 +23,9 @@ def test_jira_client_passes_proxies_to_requests(monkeypatch):
     # Create a proper proxies dictionary that can be updated
     mock_session.proxies = {}
     mock_jira._session = mock_session
-    monkeypatch.setattr("mcp_atlassian.jira.client.Jira", lambda **kwargs: mock_jira)
+    monkeypatch.setattr("atlassian_hub.jira.client.Jira", lambda **kwargs: mock_jira)
     monkeypatch.setattr(
-        "mcp_atlassian.jira.client.configure_ssl_verification", lambda **kwargs: None
+        "atlassian_hub.jira.client.configure_ssl_verification", lambda **kwargs: None
     )
     config = JiraConfig(
         url="https://test.atlassian.net",
@@ -55,14 +55,14 @@ def test_confluence_client_passes_proxies_to_requests(monkeypatch):
     mock_session.proxies = {}
     mock_confluence._session = mock_session
     monkeypatch.setattr(
-        "mcp_atlassian.confluence.client.Confluence", lambda **kwargs: mock_confluence
+        "atlassian_hub.confluence.client.Confluence", lambda **kwargs: mock_confluence
     )
     monkeypatch.setattr(
-        "mcp_atlassian.confluence.client.configure_ssl_verification",
+        "atlassian_hub.confluence.client.configure_ssl_verification",
         lambda **kwargs: None,
     )
     monkeypatch.setattr(
-        "mcp_atlassian.preprocessing.confluence.ConfluencePreprocessor",
+        "atlassian_hub.preprocessing.confluence.ConfluencePreprocessor",
         lambda **kwargs: MagicMock(),
     )
     config = ConfluenceConfig(
@@ -90,9 +90,9 @@ def test_jira_client_no_proxy_env(monkeypatch):
     mock_jira = MagicMock()
     mock_session = MagicMock()
     mock_jira._session = mock_session
-    monkeypatch.setattr("mcp_atlassian.jira.client.Jira", lambda **kwargs: mock_jira)
+    monkeypatch.setattr("atlassian_hub.jira.client.Jira", lambda **kwargs: mock_jira)
     monkeypatch.setattr(
-        "mcp_atlassian.jira.client.configure_ssl_verification", lambda **kwargs: None
+        "atlassian_hub.jira.client.configure_ssl_verification", lambda **kwargs: None
     )
     monkeypatch.setenv("NO_PROXY", "")
     config = JiraConfig(
@@ -157,10 +157,10 @@ class TestProxyConfigurationEnhanced(BaseAuthTest):
         mock_session.proxies = {}
         mock_jira._session = mock_session
         monkeypatch.setattr(
-            "mcp_atlassian.jira.client.Jira", lambda **kwargs: mock_jira
+            "atlassian_hub.jira.client.Jira", lambda **kwargs: mock_jira
         )
         monkeypatch.setattr(
-            "mcp_atlassian.jira.client.configure_ssl_verification",
+            "atlassian_hub.jira.client.configure_ssl_verification",
             lambda **kwargs: None,
         )
 
@@ -202,7 +202,7 @@ class TestProxyConfigurationEnhanced(BaseAuthTest):
         # Mock to simulate proxy connection failure
         mock_jira = MagicMock()
         mock_jira.side_effect = ProxyError("Unable to connect to proxy")
-        monkeypatch.setattr("mcp_atlassian.jira.client.Jira", mock_jira)
+        monkeypatch.setattr("atlassian_hub.jira.client.Jira", mock_jira)
 
         config = JiraConfig(
             url="https://test.atlassian.net",
@@ -246,15 +246,15 @@ class TestProxyConfigurationEnhanced(BaseAuthTest):
         mock_session.proxies = {}
         mock_confluence._session = mock_session
         monkeypatch.setattr(
-            "mcp_atlassian.confluence.client.Confluence",
+            "atlassian_hub.confluence.client.Confluence",
             lambda **kwargs: mock_confluence,
         )
         monkeypatch.setattr(
-            "mcp_atlassian.confluence.client.configure_ssl_verification",
+            "atlassian_hub.confluence.client.configure_ssl_verification",
             lambda **kwargs: None,
         )
         monkeypatch.setattr(
-            "mcp_atlassian.preprocessing.confluence.ConfluencePreprocessor",
+            "atlassian_hub.preprocessing.confluence.ConfluencePreprocessor",
             lambda **kwargs: MagicMock(),
         )
 

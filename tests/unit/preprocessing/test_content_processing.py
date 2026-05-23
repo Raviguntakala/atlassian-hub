@@ -10,8 +10,8 @@ from typing import Any
 
 import pytest
 
-from mcp_atlassian.preprocessing.confluence import ConfluencePreprocessor
-from mcp_atlassian.preprocessing.jira import JiraPreprocessor
+from atlassian_hub.preprocessing.confluence import ConfluencePreprocessor
+from atlassian_hub.preprocessing.jira import JiraPreprocessor
 from tests.utils.mocks import MockConfluenceClient
 
 

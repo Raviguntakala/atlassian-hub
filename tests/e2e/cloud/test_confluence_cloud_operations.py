@@ -6,7 +6,7 @@ import uuid
 
 import pytest
 
-from mcp_atlassian.confluence import ConfluenceFetcher
+from atlassian_hub.confluence import ConfluenceFetcher
 
 from .conftest import CloudInstanceInfo, CloudResourceTracker
 

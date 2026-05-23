@@ -2,8 +2,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_atlassian.jira.issues import IssuesMixin
-from mcp_atlassian.jira.protocols import (
+from atlassian_hub.jira.issues import IssuesMixin
+from atlassian_hub.jira.protocols import (
     AttachmentsOperationsProto,
     EpicOperationsProto,
     FieldsOperationsProto,
@@ -65,7 +65,7 @@ class ConcreteIssuesMixin(
 @pytest.fixture
 def issues_mixin():
     """Fixture to create an instance of IssuesMixin with a mocked jira client."""
-    with patch("mcp_atlassian.jira.config.JiraConfig.from_env") as mock_from_env:
+    with patch("atlassian_hub.jira.config.JiraConfig.from_env") as mock_from_env:
         mock_config = MagicMock()
         mock_config.is_cloud = True
         mock_from_env.return_value = mock_config

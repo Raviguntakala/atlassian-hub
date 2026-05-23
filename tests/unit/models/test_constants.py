@@ -3,7 +3,7 @@
 Focused tests for model constants, validating correct values and business logic.
 """
 
-from mcp_atlassian.models.constants import (
+from atlassian_hub.models.constants import (
     # Confluence defaults
     CONFLUENCE_DEFAULT_ID,
     CONFLUENCE_DEFAULT_SPACE,

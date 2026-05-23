@@ -2,7 +2,7 @@
 
 import pytest
 
-from mcp_atlassian.utils.toolsets import (
+from atlassian_hub.utils.toolsets import (
     ALL_TOOLSETS,
     DEFAULT_TOOLSETS,
     TOOLSET_TAG_PREFIX,
@@ -184,7 +184,7 @@ class TestToolsetTagCompleteness:
         """Get all registered Jira tools."""
         import asyncio
 
-        from mcp_atlassian.servers.jira import jira_mcp
+        from atlassian_hub.servers.jira import jira_mcp
 
         loop = asyncio.new_event_loop()
         try:
@@ -197,7 +197,7 @@ class TestToolsetTagCompleteness:
         """Get all registered Confluence tools."""
         import asyncio
 
-        from mcp_atlassian.servers.confluence import confluence_mcp
+        from atlassian_hub.servers.confluence import confluence_mcp
 
         loop = asyncio.new_event_loop()
         try:

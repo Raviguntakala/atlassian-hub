@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from mcp_atlassian.jira.config import JiraConfig
-from mcp_atlassian.utils.oauth import OAuthConfig
+from atlassian_hub.jira.config import JiraConfig
+from atlassian_hub.utils.oauth import OAuthConfig
 
 
 def test_from_env_basic_auth():
@@ -184,7 +184,7 @@ def test_from_env_proxy_settings():
 
 def test_is_cloud_oauth_with_cloud_id():
     """Test that is_cloud returns True for OAuth with cloud_id regardless of URL."""
-    from mcp_atlassian.utils.oauth import BYOAccessTokenOAuthConfig
+    from atlassian_hub.utils.oauth import BYOAccessTokenOAuthConfig
 
     # OAuth with cloud_id and no URL - should be Cloud
     oauth_config = BYOAccessTokenOAuthConfig(

@@ -5,9 +5,9 @@ from unittest.mock import MagicMock
 import pytest
 import requests
 
-from mcp_atlassian.jira import JiraConfig
-from mcp_atlassian.jira.sprints import SprintsMixin
-from mcp_atlassian.models.jira import JiraSprint
+from atlassian_hub.jira import JiraConfig
+from atlassian_hub.jira.sprints import SprintsMixin
+from atlassian_hub.models.jira import JiraSprint
 
 
 @pytest.fixture

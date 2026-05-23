@@ -38,7 +38,7 @@ import webbrowser
 # Add the parent directory to the path so we can import the package
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.mcp_atlassian.utils.oauth import OAuthConfig
+from src.atlassian_hub.utils.oauth import OAuthConfig
 
 # Configure logging (basicConfig should be called only once, ideally at the very start)
 # Adding lineno for better debugging.
@@ -51,7 +51,7 @@ logging.basicConfig(
 
 logger = logging.getLogger("oauth-authorize")
 logger.setLevel(logging.DEBUG)
-logging.getLogger("mcp-atlassian.oauth").setLevel(logging.DEBUG)
+logging.getLogger("atlassian-hub.oauth").setLevel(logging.DEBUG)
 
 # Global variables for callback handling
 authorization_code = None

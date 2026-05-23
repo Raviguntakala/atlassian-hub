@@ -68,7 +68,7 @@ if __name__ == "__main__":
         main_file = (
             Path(__file__).parent.parent.parent
             / "src"
-            / "mcp_atlassian"
+            / "atlassian_hub"
             / "__init__.py"
         )
         with open(main_file) as f:
@@ -119,7 +119,7 @@ if __name__ == "__main__":
         This verifies that the lifecycle management doesn't interfere with
         HTTP transport operation.
         """
-        from mcp_atlassian.utils.lifecycle import (
+        from atlassian_hub.utils.lifecycle import (
             ensure_clean_exit,
             setup_signal_handlers,
         )

@@ -277,8 +277,8 @@ def _make_display_name(tool_name: str, annotations: Any) -> str:
 
 async def get_all_tools() -> dict[str, dict[str, Any]]:
     """Extract tools from both FastMCP server instances."""
-    from mcp_atlassian.servers.confluence import confluence_mcp
-    from mcp_atlassian.servers.jira import jira_mcp
+    from atlassian_hub.servers.confluence import confluence_mcp
+    from atlassian_hub.servers.jira import jira_mcp
 
     jira_tools = await jira_mcp.list_tools()
     confluence_tools = await confluence_mcp.list_tools()

@@ -2,7 +2,7 @@
 
 import pytest
 
-from mcp_atlassian.jira.watchers import WatchersMixin
+from atlassian_hub.jira.watchers import WatchersMixin
 
 
 class TestGetIssueWatchers:

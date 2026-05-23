@@ -5,7 +5,7 @@ from __future__ import annotations
 import pytest
 from fastmcp.server.auth.auth import AccessToken
 
-from mcp_atlassian.utils.token_verifier import AtlassianOpaqueTokenVerifier
+from atlassian_hub.utils.token_verifier import AtlassianOpaqueTokenVerifier
 
 
 @pytest.mark.anyio

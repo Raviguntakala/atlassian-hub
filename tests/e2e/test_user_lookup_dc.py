@@ -17,8 +17,8 @@ from fastmcp import Client
 from fastmcp.client import FastMCPTransport
 from mcp.types import CallToolResult
 
-from mcp_atlassian.jira import JiraFetcher
-from mcp_atlassian.servers import main_mcp
+from atlassian_hub.jira import JiraFetcher
+from atlassian_hub.servers import main_mcp
 
 from .conftest import DCInstanceInfo
 

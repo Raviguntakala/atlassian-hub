@@ -16,7 +16,7 @@ from fastmcp import Client
 from fastmcp.client import FastMCPTransport
 from mcp.types import CallToolResult, ImageContent, TextContent
 
-from mcp_atlassian.servers import main_mcp
+from atlassian_hub.servers import main_mcp
 
 from .conftest import CloudInstanceInfo
 

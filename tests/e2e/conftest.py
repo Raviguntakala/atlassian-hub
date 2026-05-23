@@ -16,11 +16,11 @@ from typing import Any
 import pytest
 import requests
 
-from mcp_atlassian.confluence import ConfluenceFetcher
-from mcp_atlassian.confluence.config import ConfluenceConfig
-from mcp_atlassian.jira import JiraFetcher
-from mcp_atlassian.jira.config import JiraConfig
-from mcp_atlassian.utils.oauth import BYOAccessTokenOAuthConfig
+from atlassian_hub.confluence import ConfluenceFetcher
+from atlassian_hub.confluence.config import ConfluenceConfig
+from atlassian_hub.jira import JiraFetcher
+from atlassian_hub.jira.config import JiraConfig
+from atlassian_hub.utils.oauth import BYOAccessTokenOAuthConfig
 
 logger = logging.getLogger(__name__)
 

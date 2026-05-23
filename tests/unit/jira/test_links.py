@@ -3,9 +3,9 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 from requests.exceptions import HTTPError
 
-from mcp_atlassian.exceptions import MCPAtlassianAuthenticationError
-from mcp_atlassian.jira.links import LinksMixin
-from mcp_atlassian.models.jira import JiraIssueLinkType
+from atlassian_hub.exceptions import MCPAtlassianAuthenticationError
+from atlassian_hub.jira.links import LinksMixin
+from atlassian_hub.models.jira import JiraIssueLinkType
 
 
 class TestLinksMixin:

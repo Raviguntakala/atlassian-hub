@@ -8,7 +8,7 @@
 
 | Path | Purpose |
 | --- | --- |
-| `src/mcp_atlassian/` | Library source (Python ≥ 3.10) |
+| `src/atlassian_hub/` | Library source (Python ≥ 3.10) |
 | `  ├─ jira/` | Jira client + 21 mixins (issues, search, SLA, metrics, …) |
 | `  ├─ confluence/` | Confluence client + 8 mixins (pages, search, analytics, …) |
 | `  ├─ models/` | Pydantic v2 data models (`ApiModel` base) |
@@ -40,7 +40,7 @@ pre-commit run --all-files           # Ruff + mypy
 uv run pytest -xvs                   # full test suite
 uv run pytest tests/unit/ -xvs       # unit tests only
 uv run pytest tests/integration/     # integration tests
-uv run pytest --cov=src/mcp_atlassian --cov-report=term-missing  # coverage
+uv run pytest --cov=src/atlassian_hub --cov-report=term-missing  # coverage
 ```
 
 *Tests must pass* and *lint/typing must be clean* before committing.
@@ -84,9 +84,9 @@ uv run pytest --cov=src/mcp_atlassian --cov-report=term-missing  # coverage
 
 ```bash
 # Running the server
-uv run mcp-atlassian                 # Start server
-uv run mcp-atlassian --oauth-setup   # OAuth wizard
-uv run mcp-atlassian -v              # Verbose mode
+uv run atlassian-hub                 # Start server
+uv run atlassian-hub --oauth-setup   # OAuth wizard
+uv run atlassian-hub -v              # Verbose mode
 
 # Git workflow
 git checkout -b feature/description   # New feature

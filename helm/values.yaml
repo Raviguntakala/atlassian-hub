@@ -1,10 +1,10 @@
-# Default values for mcp-atlassian
+# Default values for atlassian-hub
 # This is a YAML-formatted file.
 
 replicaCount: 1
 
 image:
-  repository: ghcr.io/sooperset/mcp-atlassian
+  repository: ghcr.io/raviguntakala/atlassian-hub
   pullPolicy: IfNotPresent
   tag: "0.20.0"
 
@@ -57,14 +57,14 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # cert-manager.io/cluster-issuer: letsencrypt-prod
   hosts:
-    - host: mcp-atlassian.local
+    - host: atlassian-hub.local
       paths:
         - path: /
           pathType: Prefix
   tls: []
-  #  - secretName: mcp-atlassian-tls
+  #  - secretName: atlassian-hub-tls
   #    hosts:
-  #      - mcp-atlassian.local
+  #      - atlassian-hub.local
 
 resources:
   limits:

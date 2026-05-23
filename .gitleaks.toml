@@ -1,4 +1,4 @@
-title = "mcp-atlassian gitleaks config"
+title = "atlassian-hub gitleaks config"
 
 [extend]
 useDefault = true
