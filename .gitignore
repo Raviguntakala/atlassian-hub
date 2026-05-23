@@ -64,6 +64,15 @@ local/
 .pytest_cache/
 .coverage/
 .coverage
+pytest-of-*/
+coverage.xml
+
+# Semgrep
+semgrep-mcp/
+semgrep.sarif
+
+# uv stale locks
+uv-*.lock
 
 # Pre-commit
 .pre-commit-config.yaml.cache

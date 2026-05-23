@@ -1,0 +1,142 @@
+name: Security Daily Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # 2 AM UTC every day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  dependency-audit:
+    name: Dependency CVE Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.10"
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --frozen --all-extras --dev
+
+      - name: Run uv audit (CVE scan)
+        run: uv audit --format json > audit-results.json || true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-audit-${{ github.run_id }}
+          path: audit-results.json
+          retention-days: 14
+
+  secrets-scan:
+    name: Secrets Leak Detection (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full git history required
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: gitleaks-results-${{ github.run_id }}
+          path: results.sarif
+          retention-days: 14
+
+  snyk:
+    name: Snyk (CVE + SAST + License + Fix PRs)
+    runs-on: ubuntu-latest
+    # Requires: SNYK_TOKEN secret — free at snyk.io (unlimited scans for public repos)
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.10"
+          enable-cache: true
+
+      - name: Export requirements for Snyk
+        run: uv export --no-dev --format requirements-txt > requirements.txt
+
+      - name: Run Snyk dependency scan
+        uses: snyk/actions/python@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk-deps.sarif --severity-threshold=medium
+
+      - name: Run Snyk Code SAST
+        uses: snyk/actions/python@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          command: code test
+          args: --sarif-file-output=snyk-code.sarif --severity-threshold=medium
+
+      - name: Upload Snyk SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: snyk-deps.sarif
+          category: snyk-deps
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: snyk-results-${{ github.run_id }}
+          path: |
+            snyk-deps.sarif
+            snyk-code.sarif
+          retention-days: 14
+
+  python-sast:
+    name: Python SAST (Bandit + Semgrep)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "0.6.10"
+
+      - name: Run Bandit
+        run: |
+          uvx bandit \
+            -r src/ \
+            -f json \
+            -o bandit-results.json \
+            --severity-level medium \
+            || true
+
+      - name: Run Semgrep
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/python
+            p/owasp-top-ten
+            p/secrets
+            p/security-audit
+        continue-on-error: true
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast-results-${{ github.run_id }}
+          path: |
+            bandit-results.json
+            semgrep.sarif
+          retention-days: 14
