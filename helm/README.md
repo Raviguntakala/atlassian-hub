@@ -1,6 +1,6 @@
 # MCP Atlassian Helm Chart
 
-This Helm chart deploys the [MCP Atlassian](https://github.com/sooperset/mcp-atlassian) server to Kubernetes, providing a Model Context Protocol (MCP) server for Jira and Confluence integration.
+This Helm chart deploys the [MCP Atlassian](https://github.com/Raviguntakala/atlassian-hub) server to Kubernetes, providing a Model Context Protocol (MCP) server for Jira and Confluence integration.
 
 ## Prerequisites
 
@@ -28,19 +28,19 @@ jira:
 YAML
 
 # Install the chart
-helm install mcp-atlassian ./mcp-atlassian -f my-values.yaml
+helm install atlassian-hub ./atlassian-hub -f my-values.yaml
 ```
 
 ### Validate the chart
 
 ```bash
-helm lint mcp-atlassian/
+helm lint atlassian-hub/
 ```
 
 ### Test installation
 
 ```bash
-helm install mcp-atlassian ./mcp-atlassian \
+helm install atlassian-hub ./atlassian-hub \
   --set confluence.url="https://your-company.atlassian.net/wiki" \
   --set confluence.username="user@example.com" \
   --set confluence.apiToken="token" \
@@ -94,7 +94,7 @@ oauthClientStorage:
   factory:
     importPath: "my_pkg.storage:create_store"
     configJsonSecret:
-      name: mcp-atlassian-storage-config
+      name: atlassian-hub-storage-config
       key: config.json
 ```
 
@@ -142,18 +142,18 @@ readinessProbe:
 ## Upgrading
 
 ```bash
-helm upgrade mcp-atlassian ./mcp-atlassian -f my-values.yaml
+helm upgrade atlassian-hub ./atlassian-hub -f my-values.yaml
 ```
 
 ## Uninstalling
 
 ```bash
-helm uninstall mcp-atlassian
+helm uninstall atlassian-hub
 ```
 
 ## Support
 
-For issues with the MCP Atlassian server, see https://github.com/sooperset/mcp-atlassian
+For issues with the MCP Atlassian server, see https://github.com/Raviguntakala/atlassian-hub
 
 ## License
 

@@ -11,12 +11,12 @@ from fastmcp import Client, FastMCP
 from fastmcp.client import FastMCPTransport
 from starlette.requests import Request
 
-from src.mcp_atlassian.confluence import ConfluenceFetcher
-from src.mcp_atlassian.confluence.config import ConfluenceConfig
-from src.mcp_atlassian.models.confluence.page import ConfluencePage
-from src.mcp_atlassian.servers.context import MainAppContext
-from src.mcp_atlassian.servers.main import AtlassianMCP
-from src.mcp_atlassian.utils.oauth import OAuthConfig
+from src.atlassian_hub.confluence import ConfluenceFetcher
+from src.atlassian_hub.confluence.config import ConfluenceConfig
+from src.atlassian_hub.models.confluence.page import ConfluencePage
+from src.atlassian_hub.servers.context import MainAppContext
+from src.atlassian_hub.servers.main import AtlassianMCP
+from src.atlassian_hub.utils.oauth import OAuthConfig
 
 logger = logging.getLogger(__name__)
 
@@ -186,7 +186,7 @@ def test_confluence_mcp(mock_confluence_fetcher, mock_base_confluence_config):
     """Create a test FastMCP instance with standard configuration."""
 
     # Import and register tool functions (as they are in confluence.py)
-    from src.mcp_atlassian.servers.confluence import (
+    from src.atlassian_hub.servers.confluence import (
         add_comment,
         add_label,
         create_page,
@@ -255,7 +255,7 @@ def no_fetcher_test_confluence_mcp(mock_base_confluence_config):
     """Create a test FastMCP instance that simulates missing Confluence fetcher."""
 
     # Import and register tool functions (as they are in confluence.py)
-    from src.mcp_atlassian.servers.confluence import (
+    from src.atlassian_hub.servers.confluence import (
         add_comment,
         add_label,
         create_page,
@@ -334,11 +334,11 @@ async def client(test_confluence_mcp, mock_confluence_fetcher):
     """Create a FastMCP client with mocked Confluence fetcher and request state."""
     with (
         patch(
-            "src.mcp_atlassian.servers.confluence.get_confluence_fetcher",
+            "src.atlassian_hub.servers.confluence.get_confluence_fetcher",
             AsyncMock(return_value=mock_confluence_fetcher),
         ),
         patch(
-            "src.mcp_atlassian.servers.dependencies.get_http_request",
+            "src.atlassian_hub.servers.dependencies.get_http_request",
             MagicMock(spec=Request, state=MagicMock()),
         ),
     ):

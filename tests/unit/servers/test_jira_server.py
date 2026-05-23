@@ -12,11 +12,11 @@ from fastmcp.client import FastMCPTransport
 from fastmcp.exceptions import ToolError
 from starlette.requests import Request
 
-from src.mcp_atlassian.jira import JiraFetcher
-from src.mcp_atlassian.jira.config import JiraConfig
-from src.mcp_atlassian.servers.context import MainAppContext
-from src.mcp_atlassian.servers.main import AtlassianMCP
-from src.mcp_atlassian.utils.oauth import OAuthConfig
+from src.atlassian_hub.jira import JiraFetcher
+from src.atlassian_hub.jira.config import JiraConfig
+from src.atlassian_hub.servers.context import MainAppContext
+from src.atlassian_hub.servers.main import AtlassianMCP
+from src.atlassian_hub.utils.oauth import OAuthConfig
 from tests.fixtures.jira_mocks import (
     MOCK_JIRA_COMMENTS_SIMPLIFIED,
     MOCK_JIRA_ISSUE_RESPONSE_SIMPLIFIED,
@@ -232,7 +232,7 @@ def mock_jira_fetcher():
         ]
     }
 
-    from src.mcp_atlassian.models.jira.common import JiraUser
+    from src.atlassian_hub.models.jira.common import JiraUser
 
     mock_user = MagicMock(spec=JiraUser)
     mock_user.to_simplified_dict.return_value = {
@@ -379,7 +379,7 @@ def test_jira_mcp(mock_jira_fetcher, mock_base_jira_config):
     test_mcp = AtlassianMCP(
         "TestJira", instructions="Test Jira MCP Server", lifespan=test_lifespan
     )
-    from src.mcp_atlassian.servers.jira import (
+    from src.atlassian_hub.servers.jira import (
         add_comment,
         add_issues_to_sprint,
         add_worklog,
@@ -479,7 +479,7 @@ def no_fetcher_test_jira_mcp(mock_base_jira_config):
         instructions="No Fetcher Test Jira MCP Server",
         lifespan=no_fetcher_test_lifespan,
     )
-    from src.mcp_atlassian.servers.jira import get_issue
+    from src.atlassian_hub.servers.jira import get_issue
 
     jira_sub_mcp = FastMCP(name="NoFetcherTestJiraSubMCP")
     jira_sub_mcp.add_tool(get_issue)
@@ -504,11 +504,11 @@ async def jira_client(test_jira_mcp, mock_jira_fetcher, mock_request):
     """Create a FastMCP client with mocked Jira fetcher and request state."""
     with (
         patch(
-            "src.mcp_atlassian.servers.jira.get_jira_fetcher",
+            "src.atlassian_hub.servers.jira.get_jira_fetcher",
             AsyncMock(return_value=mock_jira_fetcher),
         ),
         patch(
-            "src.mcp_atlassian.servers.dependencies.get_http_request",
+            "src.atlassian_hub.servers.dependencies.get_http_request",
             return_value=mock_request,
         ),
     ):
@@ -880,11 +880,11 @@ async def test_no_fetcher_get_issue(no_fetcher_client_fixture, mock_request):
 
     with (
         patch(
-            "src.mcp_atlassian.servers.jira.get_jira_fetcher",
+            "src.atlassian_hub.servers.jira.get_jira_fetcher",
             AsyncMock(side_effect=mock_get_fetcher_error),
         ),
         patch(
-            "src.mcp_atlassian.servers.dependencies.get_http_request",
+            "src.atlassian_hub.servers.dependencies.get_http_request",
             return_value=mock_request,
         ),
     ):
@@ -916,17 +916,17 @@ async def test_get_issue_with_user_specific_fetcher_in_state(
     expected_fields_list = ["summary", "status", "issuetype"]
 
     # Import the real get_jira_fetcher to test its interaction with request.state
-    from src.mcp_atlassian.servers.dependencies import (
+    from src.atlassian_hub.servers.dependencies import (
         get_jira_fetcher as get_jira_fetcher_real,
     )
 
     with (
         patch(
-            "src.mcp_atlassian.servers.dependencies.get_http_request",
+            "src.atlassian_hub.servers.dependencies.get_http_request",
             return_value=_mock_request_with_fetcher_in_state,
         ) as mock_get_http,
         patch(
-            "src.mcp_atlassian.servers.jira.get_jira_fetcher",
+            "src.atlassian_hub.servers.jira.get_jira_fetcher",
             side_effect=AsyncMock(wraps=get_jira_fetcher_real),
         ),
     ):
@@ -1333,7 +1333,7 @@ async def test_get_all_projects_tool_authentication_error_handling(
     jira_client, mock_jira_fetcher
 ):
     """Test tool handles authentication errors gracefully."""
-    from mcp_atlassian.exceptions import MCPAtlassianAuthenticationError
+    from atlassian_hub.exceptions import MCPAtlassianAuthenticationError
 
     mock_jira_fetcher.get_all_projects.side_effect = MCPAtlassianAuthenticationError(
         "Authentication failed"
@@ -1539,7 +1539,7 @@ def test_issue_key_pattern_validation():
     """Verify the issue key and project key regex patterns accept valid keys."""
     import re
 
-    from src.mcp_atlassian.servers.jira import ISSUE_KEY_PATTERN, PROJECT_KEY_PATTERN
+    from src.atlassian_hub.servers.jira import ISSUE_KEY_PATTERN, PROJECT_KEY_PATTERN
 
     # Valid issue keys
     assert re.match(ISSUE_KEY_PATTERN, "PROJ-123")
@@ -1572,7 +1572,7 @@ def test_issue_key_pattern_validation():
 def test_issue_and_project_key_patterns_accept_long_server_dc_keys():
     import re
 
-    from src.mcp_atlassian.servers.jira import ISSUE_KEY_PATTERN, PROJECT_KEY_PATTERN
+    from src.atlassian_hub.servers.jira import ISSUE_KEY_PATTERN, PROJECT_KEY_PATTERN
 
     assert re.match(ISSUE_KEY_PATTERN, "VERYLONGPROJECTKEY-123")
     assert re.match(PROJECT_KEY_PATTERN, "VERYLONGPROJECTKEY")
@@ -1581,7 +1581,7 @@ def test_issue_and_project_key_patterns_accept_long_server_dc_keys():
 def test_issue_and_project_key_patterns_reject_invalid_keys():
     import re
 
-    from src.mcp_atlassian.servers.jira import ISSUE_KEY_PATTERN, PROJECT_KEY_PATTERN
+    from src.atlassian_hub.servers.jira import ISSUE_KEY_PATTERN, PROJECT_KEY_PATTERN
 
     assert not re.match(ISSUE_KEY_PATTERN, "lowercase-123")
     assert not re.match(ISSUE_KEY_PATTERN, "123-456")
@@ -1847,7 +1847,7 @@ async def test_download_attachments_allows_normal_size(jira_client, mock_jira_fe
 @pytest.mark.anyio
 async def test_get_issue_images_basic(jira_client, mock_jira_fetcher):
     """Test with a mix of image and non-image attachments."""
-    from mcp_atlassian.models.jira import JiraAttachment
+    from atlassian_hub.models.jira import JiraAttachment
 
     mock_jira_fetcher.get_issue_attachments.return_value = [
         JiraAttachment(
@@ -1881,7 +1881,7 @@ async def test_get_issue_images_basic(jira_client, mock_jira_fetcher):
 @pytest.mark.anyio
 async def test_get_issue_images_octet_stream_fallback(jira_client, mock_jira_fetcher):
     """Test that application/octet-stream with image extension is detected."""
-    from mcp_atlassian.models.jira import JiraAttachment
+    from atlassian_hub.models.jira import JiraAttachment
 
     mock_jira_fetcher.get_issue_attachments.return_value = [
         JiraAttachment(
@@ -1907,7 +1907,7 @@ async def test_get_issue_images_octet_stream_fallback(jira_client, mock_jira_fet
 @pytest.mark.anyio
 async def test_get_issue_images_no_images(jira_client, mock_jira_fetcher):
     """Test when issue has no image attachments."""
-    from mcp_atlassian.models.jira import JiraAttachment
+    from atlassian_hub.models.jira import JiraAttachment
 
     mock_jira_fetcher.get_issue_attachments.return_value = [
         JiraAttachment(
@@ -1931,7 +1931,7 @@ async def test_get_issue_images_no_images(jira_client, mock_jira_fetcher):
 @pytest.mark.anyio
 async def test_get_issue_images_size_limit(jira_client, mock_jira_fetcher):
     """Test that images exceeding 50 MB are skipped."""
-    from mcp_atlassian.models.jira import JiraAttachment
+    from atlassian_hub.models.jira import JiraAttachment
 
     mock_jira_fetcher.get_issue_attachments.return_value = [
         JiraAttachment(
@@ -1957,7 +1957,7 @@ async def test_get_issue_images_size_limit(jira_client, mock_jira_fetcher):
 @pytest.mark.anyio
 async def test_get_issue_images_fetch_failure(jira_client, mock_jira_fetcher):
     """Test graceful handling when fetch_attachment_content returns None."""
-    from mcp_atlassian.models.jira import JiraAttachment
+    from atlassian_hub.models.jira import JiraAttachment
 
     mock_jira_fetcher.get_issue_attachments.return_value = [
         JiraAttachment(
@@ -2189,7 +2189,7 @@ class TestMatchesContains:
         ],
     )
     def test_matches_contains(self, option, needle, expected):
-        from src.mcp_atlassian.servers.jira import _matches_contains
+        from src.atlassian_hub.servers.jira import _matches_contains
 
         assert _matches_contains(option, needle) is expected
 
@@ -2239,7 +2239,7 @@ class TestApplyOptionFilters:
     def test_apply_option_filters(
         self, options, contains, return_limit, expected_values
     ):
-        from src.mcp_atlassian.servers.jira import _apply_option_filters
+        from src.atlassian_hub.servers.jira import _apply_option_filters
 
         result = _apply_option_filters(options, contains, return_limit)
         assert [opt["value"] for opt in result] == expected_values
@@ -2290,7 +2290,7 @@ class TestToValuesOnlyPayload:
         ],
     )
     def test_to_values_only_payload(self, options, expected):
-        from src.mcp_atlassian.servers.jira import _to_values_only_payload
+        from src.atlassian_hub.servers.jira import _to_values_only_payload
 
         assert _to_values_only_payload(options) == expected
 

@@ -7,16 +7,16 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_atlassian.confluence import ConfluenceConfig, ConfluenceFetcher
-from mcp_atlassian.jira import JiraConfig, JiraFetcher
-from mcp_atlassian.servers.context import MainAppContext
-from mcp_atlassian.servers.dependencies import (
+from atlassian_hub.confluence import ConfluenceConfig, ConfluenceFetcher
+from atlassian_hub.jira import JiraConfig, JiraFetcher
+from atlassian_hub.servers.context import MainAppContext
+from atlassian_hub.servers.dependencies import (
     _create_user_config_for_fetcher,
     _resolve_bearer_auth_type,
     get_confluence_fetcher,
     get_jira_fetcher,
 )
-from mcp_atlassian.utils.oauth import OAuthConfig
+from atlassian_hub.utils.oauth import OAuthConfig
 from tests.utils.assertions import assert_mock_called_with_partial
 from tests.utils.factories import AuthConfigFactory
 from tests.utils.mocks import MockFastMCP
@@ -437,8 +437,8 @@ def _create_mock_fetcher(fetcher_class, validation_return=None, validation_error
 class TestGetJiraFetcher:
     """Tests for get_jira_fetcher function."""
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_cached_fetcher_returned(
         self, mock_jira_fetcher_class, mock_get_http_request, mock_context, mock_request
     ):
@@ -452,8 +452,8 @@ class TestGetJiraFetcher:
         assert result == cached_fetcher
         mock_jira_fetcher_class.assert_not_called()
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_header_based_jira_fetcher_creation(
         self,
         mock_jira_fetcher_class,
@@ -500,8 +500,8 @@ class TestGetJiraFetcher:
         assert called_config.url == "https://test.atlassian.net"
         assert called_config.personal_token == "test-pat-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_header_based_jira_fetcher_validation_failure(
         self, mock_jira_fetcher_class, mock_get_http_request, mock_context, mock_request
     ):
@@ -540,8 +540,8 @@ class TestGetJiraFetcher:
             await get_jira_fetcher(mock_context)
 
     @pytest.mark.parametrize("scenario_key", ["oauth", "pat"])
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_user_specific_fetcher_creation(
         self,
         mock_jira_fetcher_class,
@@ -586,9 +586,9 @@ class TestGetJiraFetcher:
         elif scenario["auth_type"] == "pat":
             assert called_config.personal_token == scenario["token"]
 
-    @patch("mcp_atlassian.servers.dependencies.get_access_token")
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_access_token")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_oauth_prefers_fastmcp_access_token(
         self,
         mock_jira_fetcher_class,
@@ -621,9 +621,9 @@ class TestGetJiraFetcher:
         assert called_config.oauth_config is not None
         assert called_config.oauth_config.access_token == "upstream-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_access_token")
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_access_token")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_oauth_falls_back_to_request_state_token(
         self,
         mock_jira_fetcher_class,
@@ -656,9 +656,9 @@ class TestGetJiraFetcher:
         assert called_config.oauth_config is not None
         assert called_config.oauth_config.access_token == "state-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_access_token")
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_access_token")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_pat_flow_does_not_use_fastmcp_access_token(
         self,
         mock_jira_fetcher_class,
@@ -690,8 +690,8 @@ class TestGetJiraFetcher:
         assert called_config.personal_token == scenario["token"]
         mock_get_access_token.assert_not_called()
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_global_fallback_scenarios(
         self,
         mock_jira_fetcher_class,
@@ -746,8 +746,8 @@ class TestGetJiraFetcher:
             ),
         ],
     )
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_error_scenarios(
         self,
         mock_jira_fetcher_class,
@@ -798,8 +798,8 @@ class TestGetJiraFetcher:
 class TestGetConfluenceFetcher:
     """Tests for get_confluence_fetcher function."""
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_cached_fetcher_returned(
         self,
         mock_confluence_fetcher_class,
@@ -817,8 +817,8 @@ class TestGetConfluenceFetcher:
         assert result == cached_fetcher
         mock_confluence_fetcher_class.assert_not_called()
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_header_based_confluence_fetcher_creation(
         self,
         mock_confluence_fetcher_class,
@@ -868,8 +868,8 @@ class TestGetConfluenceFetcher:
         assert called_config.url == "https://test.atlassian.net"
         assert called_config.personal_token == "test-confluence-pat-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_header_based_confluence_fetcher_validation_failure(
         self,
         mock_confluence_fetcher_class,
@@ -913,8 +913,8 @@ class TestGetConfluenceFetcher:
             await get_confluence_fetcher(mock_context)
 
     @pytest.mark.parametrize("scenario_key", ["oauth", "pat"])
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_user_specific_fetcher_creation(
         self,
         mock_confluence_fetcher_class,
@@ -959,9 +959,9 @@ class TestGetConfluenceFetcher:
         elif scenario["auth_type"] == "pat":
             assert called_config.personal_token == scenario["token"]
 
-    @patch("mcp_atlassian.servers.dependencies.get_access_token")
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_access_token")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_oauth_prefers_fastmcp_access_token(
         self,
         mock_confluence_fetcher_class,
@@ -994,9 +994,9 @@ class TestGetConfluenceFetcher:
         assert called_config.oauth_config is not None
         assert called_config.oauth_config.access_token == "upstream-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_access_token")
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_access_token")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_oauth_falls_back_to_request_state_token(
         self,
         mock_confluence_fetcher_class,
@@ -1029,8 +1029,8 @@ class TestGetConfluenceFetcher:
         assert called_config.oauth_config is not None
         assert called_config.oauth_config.access_token == "state-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_global_fallback_scenarios(
         self,
         mock_confluence_fetcher_class,
@@ -1080,8 +1080,8 @@ class TestGetConfluenceFetcher:
             ("preserve_existing", "existing@example.com"),
         ],
     )
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_email_derivation_behavior(
         self,
         mock_confluence_fetcher_class,
@@ -1139,8 +1139,8 @@ class TestGetConfluenceFetcher:
             ),
         ],
     )
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_error_scenarios(
         self,
         mock_confluence_fetcher_class,
@@ -1246,8 +1246,8 @@ class TestBasicAuthMultiUser:
                 credentials=credentials,
             )
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.JiraFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.JiraFetcher")
     async def test_jira_basic_auth_fetcher_creation(
         self,
         mock_jira_fetcher_class,
@@ -1287,8 +1287,8 @@ class TestBasicAuthMultiUser:
         assert called_config.username == "user@example.com"
         assert called_config.api_token == "user-api-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
-    @patch("mcp_atlassian.servers.dependencies.ConfluenceFetcher")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.ConfluenceFetcher")
     async def test_confluence_basic_auth_fetcher_creation(
         self,
         mock_confluence_fetcher_class,
@@ -1325,7 +1325,7 @@ class TestBasicAuthMultiUser:
         assert called_config.username == "user@example.com"
         assert called_config.api_token == "user-api-token"
 
-    @patch("mcp_atlassian.servers.dependencies.get_http_request")
+    @patch("atlassian_hub.servers.dependencies.get_http_request")
     async def test_basic_auth_empty_email_raises(
         self,
         mock_get_http_request,
@@ -1453,29 +1453,29 @@ class TestSsrfProtection:
 
     def test_validate_rejects_private_ip(self) -> None:
         """Private IP URLs are rejected by SSRF validation."""
-        from mcp_atlassian.utils.urls import validate_url_for_ssrf
+        from atlassian_hub.utils.urls import validate_url_for_ssrf
 
         result = validate_url_for_ssrf("http://127.0.0.1:8080")
         assert result is not None
 
     def test_validate_rejects_metadata(self) -> None:
         """Cloud metadata endpoint is rejected."""
-        from mcp_atlassian.utils.urls import validate_url_for_ssrf
+        from atlassian_hub.utils.urls import validate_url_for_ssrf
 
         result = validate_url_for_ssrf("http://169.254.169.254")
         assert result is not None
 
     def test_validate_rejects_file_scheme(self) -> None:
         """file:// scheme is rejected."""
-        from mcp_atlassian.utils.urls import validate_url_for_ssrf
+        from atlassian_hub.utils.urls import validate_url_for_ssrf
 
         result = validate_url_for_ssrf("file:///etc/passwd")
         assert result is not None
 
     def test_redirect_hook_blocks_internal(self) -> None:
         """Redirect to internal IP is blocked by SSRF hook."""
-        from mcp_atlassian.servers.dependencies import _make_ssrf_safe_hook
-        from mcp_atlassian.utils.urls import validate_url_for_ssrf
+        from atlassian_hub.servers.dependencies import _make_ssrf_safe_hook
+        from atlassian_hub.utils.urls import validate_url_for_ssrf
 
         hook = _make_ssrf_safe_hook(validate_url_for_ssrf)
 
@@ -1489,8 +1489,8 @@ class TestSsrfProtection:
 
     def test_redirect_hook_allows_safe(self) -> None:
         """Redirect to safe URL passes through."""
-        from mcp_atlassian.servers.dependencies import _make_ssrf_safe_hook
-        from mcp_atlassian.utils.urls import validate_url_for_ssrf
+        from atlassian_hub.servers.dependencies import _make_ssrf_safe_hook
+        from atlassian_hub.utils.urls import validate_url_for_ssrf
 
         hook = _make_ssrf_safe_hook(validate_url_for_ssrf)
 
@@ -1501,15 +1501,15 @@ class TestSsrfProtection:
         }
 
         # Mock DNS for the redirect target
-        with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+        with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
             mock_dns.return_value = [(2, 1, 6, "", ("104.192.141.1", 0))]
             result = hook(mock_response)
             assert result == mock_response
 
     def test_redirect_hook_ignores_non_redirect(self) -> None:
         """Non-redirect response passes through without checks."""
-        from mcp_atlassian.servers.dependencies import _make_ssrf_safe_hook
-        from mcp_atlassian.utils.urls import validate_url_for_ssrf
+        from atlassian_hub.servers.dependencies import _make_ssrf_safe_hook
+        from atlassian_hub.utils.urls import validate_url_for_ssrf
 
         hook = _make_ssrf_safe_hook(validate_url_for_ssrf)
 

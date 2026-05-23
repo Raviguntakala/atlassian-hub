@@ -4,9 +4,9 @@ from unittest.mock import ANY, MagicMock, patch
 
 import pytest
 
-from mcp_atlassian.jira import JiraFetcher
-from mcp_atlassian.jira.issues import IssuesMixin, logger
-from mcp_atlassian.models.jira import JiraIssue
+from atlassian_hub.jira import JiraFetcher
+from atlassian_hub.jira.issues import IssuesMixin, logger
+from atlassian_hub.models.jira import JiraIssue
 from tests.utils.mocks import setup_api3_passthrough_mocks
 
 
@@ -559,7 +559,7 @@ class TestIssuesMixin:
 
         # Mock the prepare_epic_fields method from EpicsMixin
         with patch(
-            "mcp_atlassian.jira.epics.EpicsMixin.prepare_epic_fields", autospec=True
+            "atlassian_hub.jira.epics.EpicsMixin.prepare_epic_fields", autospec=True
         ) as mock_prepare_epic:
             # Set up the mock to store epic values in kwargs
             # Note: First argument is self because EpicsMixin.prepare_epic_fields is called as a class method

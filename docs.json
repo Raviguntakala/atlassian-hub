@@ -16,28 +16,28 @@
   },
   "topbarCtaButton": {
     "name": "GitHub",
-    "url": "https://github.com/sooperset/mcp-atlassian"
+    "url": "https://github.com/Raviguntakala/atlassian-hub"
   },
   "topbarLinks": [
     {
       "name": "PyPI",
-      "url": "https://pypi.org/project/mcp-atlassian/"
+      "url": "https://pypi.org/project/atlassian-hub/"
     },
     {
       "name": "Releases",
-      "url": "https://github.com/sooperset/mcp-atlassian/releases"
+      "url": "https://github.com/Raviguntakala/atlassian-hub/releases"
     }
   ],
   "anchors": [
     {
       "name": "GitHub",
       "icon": "github",
-      "url": "https://github.com/sooperset/mcp-atlassian"
+      "url": "https://github.com/Raviguntakala/atlassian-hub"
     },
     {
       "name": "PyPI",
       "icon": "python",
-      "url": "https://pypi.org/project/mcp-atlassian/"
+      "url": "https://pypi.org/project/atlassian-hub/"
     }
   ],
   "navigation": {
@@ -110,6 +110,6 @@
     ]
   },
   "footerSocials": {
-    "github": "https://github.com/sooperset/mcp-atlassian"
+    "github": "https://github.com/Raviguntakala/atlassian-hub"
   }
 }

@@ -8,7 +8,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
-from mcp_atlassian.utils.oauth import (
+from atlassian_hub.utils.oauth import (
     CLOUD_AUTHORIZE_URL,
     CLOUD_TOKEN_URL,
     DC_AUTHORIZE_PATH,
@@ -757,8 +757,8 @@ class TestBYOAccessTokenOAuthConfig:
         assert config is None
 
 
-@patch("mcp_atlassian.utils.oauth.BYOAccessTokenOAuthConfig.from_env")
-@patch("mcp_atlassian.utils.oauth.OAuthConfig.from_env")
+@patch("atlassian_hub.utils.oauth.BYOAccessTokenOAuthConfig.from_env")
+@patch("atlassian_hub.utils.oauth.OAuthConfig.from_env")
 def test_get_oauth_config_prefers_byo_when_both_present(
     mock_oauth_from_env, mock_byo_from_env
 ):
@@ -774,8 +774,8 @@ def test_get_oauth_config_prefers_byo_when_both_present(
     mock_oauth_from_env.assert_not_called()  # Standard OAuth should not be called if BYO is found
 
 
-@patch("mcp_atlassian.utils.oauth.BYOAccessTokenOAuthConfig.from_env")
-@patch("mcp_atlassian.utils.oauth.OAuthConfig.from_env")
+@patch("atlassian_hub.utils.oauth.BYOAccessTokenOAuthConfig.from_env")
+@patch("atlassian_hub.utils.oauth.OAuthConfig.from_env")
 def test_get_oauth_config_falls_back_to_standard_oauth_config(
     mock_oauth_from_env, mock_byo_from_env
 ):
@@ -790,8 +790,8 @@ def test_get_oauth_config_falls_back_to_standard_oauth_config(
     mock_oauth_from_env.assert_called_once()
 
 
-@patch("mcp_atlassian.utils.oauth.BYOAccessTokenOAuthConfig.from_env")
-@patch("mcp_atlassian.utils.oauth.OAuthConfig.from_env")
+@patch("atlassian_hub.utils.oauth.BYOAccessTokenOAuthConfig.from_env")
+@patch("atlassian_hub.utils.oauth.OAuthConfig.from_env")
 def test_get_oauth_config_returns_none_if_both_unavailable(
     mock_oauth_from_env, mock_byo_from_env
 ):
@@ -851,7 +851,7 @@ def test_configure_oauth_session_success_with_byo_config():
     assert session.headers["Authorization"] == "Bearer byo-valid-token"
 
 
-@patch("mcp_atlassian.utils.oauth.logger")
+@patch("atlassian_hub.utils.oauth.logger")
 def test_configure_oauth_session_byo_config_empty_token_logs_warning(mock_logger):
     """Test configure_oauth_session with BYO config and empty token returns False."""
     session = requests.Session()
@@ -866,7 +866,7 @@ def test_configure_oauth_session_byo_config_empty_token_logs_warning(mock_logger
     mock_logger.warning.assert_called_once()
 
 
-@patch("mcp_atlassian.utils.oauth.logger")
+@patch("atlassian_hub.utils.oauth.logger")
 def test_configure_oauth_session_byo_config_no_refresh_token_direct_use(mock_logger):
     """Test BYO config (with access_token, no refresh_token) uses token directly."""
     session = requests.Session()
@@ -1043,7 +1043,7 @@ class TestDataCenterOAuth:
 
     # --- Token exchange (DC vs Cloud) ---
 
-    @patch("mcp_atlassian.utils.oauth.requests.post")
+    @patch("atlassian_hub.utils.oauth.requests.post")
     def test_dc_token_exchange_no_refresh_required(self, mock_post):
         """DC token exchange succeeds without refresh_token in response."""
         mock_response = MagicMock()
@@ -1066,7 +1066,7 @@ class TestDataCenterOAuth:
         assert config.access_token == "dc-access-token"
         assert config.refresh_token is None
 
-    @patch("mcp_atlassian.utils.oauth.requests.post")
+    @patch("atlassian_hub.utils.oauth.requests.post")
     def test_cloud_token_exchange_requires_refresh(self, mock_post):
         """Cloud token exchange fails without refresh_token in response."""
         mock_response = MagicMock()
@@ -1164,7 +1164,7 @@ class TestDataCenterOAuth:
 
     # --- configure_oauth_session: no tokens early return (#858) ---
 
-    @patch("mcp_atlassian.utils.oauth.logger")
+    @patch("atlassian_hub.utils.oauth.logger")
     def test_configure_oauth_session_no_tokens_returns_false(self, mock_logger):
         """configure_oauth_session returns False when no tokens are available."""
         session = requests.Session()
@@ -1183,7 +1183,7 @@ class TestDataCenterOAuth:
         mock_logger.warning.assert_called_once()
         assert "No access_token or refresh_token" in str(mock_logger.warning.call_args)
 
-    @patch("mcp_atlassian.utils.oauth.logger")
+    @patch("atlassian_hub.utils.oauth.logger")
     def test_configure_oauth_session_minimal_oauth_no_tokens(self, mock_logger):
         """Regression: minimal OAuth config (ATLASSIAN_OAUTH_ENABLE=true) with no
         tokens should return False with clear warning, not crash (#858)."""

@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 import pytest
 from requests.exceptions import HTTPError
 
-from mcp_atlassian.confluence.analytics import AnalyticsMixin
-from mcp_atlassian.models.confluence.analytics import PageViews, PageViewsBatchResponse
+from atlassian_hub.confluence.analytics import AnalyticsMixin
+from atlassian_hub.models.confluence.analytics import PageViews, PageViewsBatchResponse
 
 
 class TestAnalyticsMixin:

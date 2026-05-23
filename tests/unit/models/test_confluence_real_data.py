@@ -7,7 +7,7 @@ and the appropriate environment variables are configured.
 
 import pytest
 
-from mcp_atlassian.models import (
+from atlassian_hub.models import (
     ConfluenceComment,
     ConfluencePage,
 )
@@ -25,9 +25,9 @@ class TestRealConfluenceData:
 
         try:
             # Initialize the Confluence client
-            from mcp_atlassian.confluence.client import ConfluenceClient
-            from mcp_atlassian.confluence.config import ConfluenceConfig
-            from mcp_atlassian.confluence.pages import PagesMixin
+            from atlassian_hub.confluence.client import ConfluenceClient
+            from atlassian_hub.confluence.config import ConfluenceConfig
+            from atlassian_hub.confluence.pages import PagesMixin
 
             # Use the from_env method to create the config
             config = ConfluenceConfig.from_env()

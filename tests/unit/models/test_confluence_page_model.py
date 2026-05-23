@@ -2,7 +2,7 @@
 Tests for the ConfluencePage Pydantic model.
 """
 
-from mcp_atlassian.models import (
+from atlassian_hub.models import (
     ConfluencePage,
 )
 

@@ -7,10 +7,10 @@ import pytest
 from requests.exceptions import SSLError
 from requests.sessions import Session
 
-from mcp_atlassian.confluence.config import ConfluenceConfig
-from mcp_atlassian.jira.client import JiraClient
-from mcp_atlassian.jira.config import JiraConfig
-from mcp_atlassian.utils.ssl import SSLIgnoreAdapter, configure_ssl_verification
+from atlassian_hub.confluence.config import ConfluenceConfig
+from atlassian_hub.jira.client import JiraClient
+from atlassian_hub.jira.config import JiraConfig
+from atlassian_hub.utils.ssl import SSLIgnoreAdapter, configure_ssl_verification
 from tests.utils.base import BaseAuthTest
 from tests.utils.mocks import MockEnvironment
 
@@ -107,7 +107,7 @@ class TestSSLVerificationEnhanced(BaseAuthTest):
         # Mock the Jira class to simulate SSL error
         mock_jira = MagicMock()
         mock_jira.side_effect = SSLError("Certificate verification failed")
-        monkeypatch.setattr("mcp_atlassian.jira.client.Jira", mock_jira)
+        monkeypatch.setattr("atlassian_hub.jira.client.Jira", mock_jira)
 
         with MockEnvironment.basic_auth_env():
             config = JiraConfig.from_env()

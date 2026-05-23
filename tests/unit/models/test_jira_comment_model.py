@@ -2,11 +2,11 @@
 Tests for the JiraComment Pydantic model.
 """
 
-from mcp_atlassian.models.constants import (
+from atlassian_hub.models.constants import (
     EMPTY_STRING,
     JIRA_DEFAULT_ID,
 )
-from mcp_atlassian.models.jira import (
+from atlassian_hub.models.jira import (
     JiraComment,
     JiraUser,
 )

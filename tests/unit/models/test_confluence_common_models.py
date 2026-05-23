@@ -5,7 +5,7 @@ Tests for ConfluenceAttachment, ConfluenceUser, ConfluenceSpace,
 ConfluenceVersion, ConfluenceComment, and ConfluenceLabel models.
 """
 
-from mcp_atlassian.models import (
+from atlassian_hub.models import (
     ConfluenceAttachment,
     ConfluenceComment,
     ConfluenceLabel,
@@ -13,7 +13,7 @@ from mcp_atlassian.models import (
     ConfluenceUser,
     ConfluenceVersion,
 )
-from mcp_atlassian.models.constants import EMPTY_STRING
+from atlassian_hub.models.constants import EMPTY_STRING
 
 
 class TestConfluenceAttachment:

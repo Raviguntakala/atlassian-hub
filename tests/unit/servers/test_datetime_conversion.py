@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.mcp_atlassian.jira.forms_common import convert_datetime_to_timestamp
+from src.atlassian_hub.jira.forms_common import convert_datetime_to_timestamp
 
 
 class TestDatetimeConversion:

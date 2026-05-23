@@ -6,8 +6,8 @@ import uuid
 
 import pytest
 
-from mcp_atlassian.confluence import ConfluenceFetcher
-from mcp_atlassian.confluence.config import ConfluenceConfig
+from atlassian_hub.confluence import ConfluenceFetcher
+from atlassian_hub.confluence.config import ConfluenceConfig
 
 from .conftest import AuthVariant, CloudInstanceInfo, CloudResourceTracker
 

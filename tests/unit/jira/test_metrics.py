@@ -4,9 +4,9 @@ from datetime import datetime, timezone
 
 import pytest
 
-from mcp_atlassian.jira import JiraFetcher
-from mcp_atlassian.jira.metrics import MetricsMixin
-from mcp_atlassian.models.jira.metrics import (
+from atlassian_hub.jira import JiraFetcher
+from atlassian_hub.jira.metrics import MetricsMixin
+from atlassian_hub.models.jira.metrics import (
     IssueDatesBatchResponse,
     IssueDatesResponse,
     StatusChangeEntry,

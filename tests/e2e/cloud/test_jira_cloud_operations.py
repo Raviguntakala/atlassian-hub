@@ -7,7 +7,7 @@ import uuid
 import pytest
 from requests.exceptions import HTTPError
 
-from mcp_atlassian.jira import JiraFetcher
+from atlassian_hub.jira import JiraFetcher
 
 from .conftest import CloudInstanceInfo, CloudResourceTracker
 

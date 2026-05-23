@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mcp_atlassian.utils.io import is_read_only_mode, validate_safe_path
+from atlassian_hub.utils.io import is_read_only_mode, validate_safe_path
 
 
 def test_is_read_only_mode_default():

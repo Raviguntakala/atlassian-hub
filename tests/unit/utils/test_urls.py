@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from mcp_atlassian.utils.urls import (
+from atlassian_hub.utils.urls import (
     is_atlassian_cloud_url,
     resolve_relative_url,
     validate_url_for_ssrf,
@@ -157,13 +157,13 @@ class TestValidateUrlForSsrf:
 
     def test_valid_cloud_url(self) -> None:
         """Atlassian Cloud URL passes validation."""
-        with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+        with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
             mock_dns.return_value = [(2, 1, 6, "", ("104.192.141.1", 0))]
             assert validate_url_for_ssrf("https://company.atlassian.net") is None
 
     def test_valid_server_url(self) -> None:
         """Server/DC URL passes validation."""
-        with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+        with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
             mock_dns.return_value = [(2, 1, 6, "", ("8.8.8.8", 0))]
             assert validate_url_for_ssrf("https://jira.example.com") is None
 
@@ -228,7 +228,7 @@ class TestValidateUrlForSsrf:
 
     def test_dns_resolves_private(self) -> None:
         """Hostname resolving to private IP is rejected."""
-        with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+        with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
             mock_dns.return_value = [(2, 1, 6, "", ("10.0.0.1", 0))]
             result = validate_url_for_ssrf("https://evil.example.com")
             assert result is not None
@@ -236,7 +236,7 @@ class TestValidateUrlForSsrf:
 
     def test_dns_unresolvable(self) -> None:
         """Unresolvable hostname is rejected."""
-        with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+        with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
             mock_dns.side_effect = socket.gaierror("Name resolution failed")
             result = validate_url_for_ssrf("https://nonexistent.invalid")
             assert result is not None
@@ -248,7 +248,7 @@ class TestValidateUrlForSsrf:
             os.environ,
             {"MCP_ALLOWED_URL_DOMAINS": "corp.com"},
         ):
-            with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+            with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
                 mock_dns.return_value = [(2, 1, 6, "", ("8.8.8.8", 0))]
                 assert validate_url_for_ssrf("https://corp.com") is None
 
@@ -258,7 +258,7 @@ class TestValidateUrlForSsrf:
             os.environ,
             {"MCP_ALLOWED_URL_DOMAINS": "atlassian.net"},
         ):
-            with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+            with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
                 mock_dns.return_value = [(2, 1, 6, "", ("104.192.141.1", 0))]
                 assert validate_url_for_ssrf("https://company.atlassian.net") is None
 
@@ -308,7 +308,7 @@ class TestValidateUrlForSsrf:
         """Without allowlist, hostname resolving to private IP is rejected."""
         with patch.dict(os.environ, {}, clear=False):
             os.environ.pop("MCP_ALLOWED_URL_DOMAINS", None)
-            with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+            with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
                 mock_dns.return_value = [(2, 1, 6, "", ("10.0.0.1", 0))]
                 result = validate_url_for_ssrf("https://some.host")
                 assert result is not None
@@ -320,7 +320,7 @@ class TestValidateUrlForSsrf:
             os.environ,
             {"MCP_ALLOWED_URL_DOMAINS": "corp.example.com"},
         ):
-            with patch("mcp_atlassian.utils.urls.socket.getaddrinfo") as mock_dns:
+            with patch("atlassian_hub.utils.urls.socket.getaddrinfo") as mock_dns:
                 mock_dns.side_effect = socket.gaierror("Name resolution failed")
                 assert validate_url_for_ssrf("https://jira.corp.example.com") is None
 

@@ -2,7 +2,7 @@
 Tests for the JiraSearchResult Pydantic model.
 """
 
-from mcp_atlassian.models.jira import (
+from atlassian_hub.models.jira import (
     JiraIssue,
     JiraSearchResult,
 )

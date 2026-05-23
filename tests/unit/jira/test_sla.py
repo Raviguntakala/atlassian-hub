@@ -5,15 +5,15 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mcp_atlassian.jira import JiraFetcher
-from mcp_atlassian.jira.config import SLAConfig
-from mcp_atlassian.jira.sla import SLAMixin
-from mcp_atlassian.models.jira.metrics import (
+from atlassian_hub.jira import JiraFetcher
+from atlassian_hub.jira.config import SLAConfig
+from atlassian_hub.jira.sla import SLAMixin
+from atlassian_hub.models.jira.metrics import (
     IssueDatesResponse,
     StatusChangeEntry,
     StatusTimeSummary,
 )
-from mcp_atlassian.models.jira.sla import (
+from atlassian_hub.models.jira.sla import (
     CycleTimeMetric,
     DueDateComplianceMetric,
     IssueSLABatchResponse,

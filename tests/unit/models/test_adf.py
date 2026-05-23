@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.mcp_atlassian.models.jira.adf import adf_to_text, markdown_to_adf
+from src.atlassian_hub.models.jira.adf import adf_to_text, markdown_to_adf
 
 
 class TestAdfToText:
@@ -137,7 +137,7 @@ class TestAdfToText:
         mock_dt.fromtimestamp.side_effect = OverflowError(
             "timestamp too large to convert to C _PyTime_t"
         )
-        with patch("src.mcp_atlassian.models.jira.adf.datetime", mock_dt):
+        with patch("src.atlassian_hub.models.jira.adf.datetime", mock_dt):
             result = adf_to_text(node)
             assert result == "253402300799000"
 
@@ -612,7 +612,7 @@ class TestMarkdownToJiraDispatch:
     def cloud_client(self):
         """Create a mock JiraClient configured for Cloud."""
         with patch("atlassian.Jira"):
-            from mcp_atlassian.jira.client import JiraClient
+            from atlassian_hub.jira.client import JiraClient
 
             client = MagicMock(spec=JiraClient)
             client.config = MagicMock()
@@ -628,7 +628,7 @@ class TestMarkdownToJiraDispatch:
     def server_client(self):
         """Create a mock JiraClient configured for Server/DC."""
         with patch("atlassian.Jira"):
-            from mcp_atlassian.jira.client import JiraClient
+            from atlassian_hub.jira.client import JiraClient
 
             client = MagicMock(spec=JiraClient)
             client.config = MagicMock()
