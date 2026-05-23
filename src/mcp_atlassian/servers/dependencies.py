@@ -619,7 +619,7 @@ async def _get_fetcher(ctx: Context, spec: _ServiceSpec) -> Any:
             else:
                 credentials["personal_access_token"] = user_token
 
-            cloud_id_info = " with cloudId %s" % user_cloud_id if user_cloud_id else ""
+            cloud_id_info = f" with cloudId {user_cloud_id}" if user_cloud_id else ""
             logger.info(
                 "Creating user-specific %sFetcher (type: %s) for user %s "
                 "(token ...<redacted>)%s",
