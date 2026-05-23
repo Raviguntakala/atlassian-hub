@@ -65,6 +65,36 @@ DEFAULT_ALLOWED_GRANT_TYPES = ["authorization_code", "refresh_token"]
 OAUTH_PROXY_ENABLE_ENV = "ATLASSIAN_OAUTH_PROXY_ENABLE"
 
 
+def _resolve_nullable_anyof_type(any_of: list) -> str | None:
+    """Resolve a nullable ``anyOf`` union to its underlying primitive type.
+
+    Handles both the single-level pattern Pydantic emits on Python 3.11+
+    (``[{"type": T}, {"type": "null"}]``) and the doubly-nested pattern
+    Python 3.10 emits for ``Optional[X]`` combined with ``Annotated`` /
+    ``Field(default=None)``::
+
+        {"anyOf": [{"anyOf": [{"type": T}, {"type": "null"}], ...},
+                   {"type": "null"}], ...}
+
+    Returns the resolved primitive type (e.g. ``"string"``) when the
+    union is collapsible, else ``None``.
+    """
+    if not isinstance(any_of, list):
+        return None
+    non_null = [v for v in any_of if v != {"type": "null"}]
+    null_present = any(v == {"type": "null"} for v in any_of)
+    if not (null_present and len(non_null) == 1):
+        return None
+    inner = non_null[0]
+    if not isinstance(inner, dict):
+        return None
+    if "type" in inner and isinstance(inner["type"], str):
+        return inner["type"]
+    if "anyOf" in inner:
+        return _resolve_nullable_anyof_type(inner["anyOf"])
+    return None
+
+
 def _sanitize_schema_for_compatibility(tool: MCPTool) -> MCPTool:
     """Sanitize tool inputSchema for AI platform compatibility.
 
@@ -73,9 +103,10 @@ def _sanitize_schema_for_compatibility(tool: MCPTool) -> MCPTool:
     Vertex AI / Google ADK rejecting ``anyOf`` alongside ``default`` or
     ``description`` fields (issues #640, #733).
 
-    The transform is intentionally conservative — it only flattens unions
-    of exactly ``[{"type": <primitive>}, {"type": "null"}]`` so that
-    complex / nested schemas are left untouched.
+    Resolution is recursive (via :func:`_resolve_nullable_anyof_type`) so
+    both the single-level ``anyOf`` pattern Pydantic emits on Python
+    3.11+ and the doubly-nested form Python 3.10 emits are collapsed to
+    a plain ``{"type": <primitive>}``.
 
     Note: Only top-level ``properties`` are processed.  Nested schemas
     (e.g. ``items`` of arrays or ``properties`` of sub-objects) are not
@@ -104,13 +135,8 @@ def _sanitize_schema_for_compatibility(tool: MCPTool) -> MCPTool:
         if not any_of or not isinstance(any_of, list):
             continue
 
-        # Only flatten simple nullable unions: [{"type": T}, {"type": "null"}]
-        non_null = [v for v in any_of if v != {"type": "null"}]
-        null_present = any(v == {"type": "null"} for v in any_of)
-
-        if null_present and len(non_null) == 1 and "type" in non_null[0]:
-            # Collapse: pull the real type up, drop anyOf
-            resolved_type = non_null[0]["type"]
+        resolved_type = _resolve_nullable_anyof_type(any_of)
+        if resolved_type is not None:
             prop_def.pop("anyOf")
             prop_def["type"] = resolved_type
 

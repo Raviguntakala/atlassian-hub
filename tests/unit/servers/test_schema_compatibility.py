@@ -245,6 +245,37 @@ class TestSanitizeSchemaForCompatibility:
         # Should remain untouched since there are 2 non-null types
         assert "anyOf" in prop
 
+    def test_flattens_doubly_nested_nullable_python_310(self) -> None:
+        """Python 3.10 + Pydantic emits ``Optional[X]`` as nested ``anyOf``.
+
+        On Python 3.10, ``Optional[X]`` combined with ``Annotated`` /
+        ``Field(default=None)`` produces ``{"anyOf": [{"anyOf": [{"type": T},
+        {"type": "null"}], ...}, {"type": "null"}]}`` instead of the flat
+        single-level form 3.11+ emits. The sanitizer must resolve both.
+        """
+        tool = self._make_tool(
+            {
+                "expand": {
+                    "anyOf": [
+                        {
+                            "anyOf": [{"type": "string"}, {"type": "null"}],
+                            "default": None,
+                            "description": "inner description",
+                        },
+                        {"type": "null"},
+                    ],
+                    "default": None,
+                    "description": "outer description",
+                }
+            }
+        )
+        _sanitize_schema_for_compatibility(tool)
+        prop = tool.inputSchema["properties"]["expand"]
+        assert prop["type"] == "string"
+        assert "anyOf" not in prop
+        assert prop["default"] is None
+        assert prop["description"] == "outer description"
+
     def test_handles_empty_schema(self) -> None:
         """Empty inputSchema doesn't crash."""
         tool = MCPTool(name="empty", description="test", inputSchema={})

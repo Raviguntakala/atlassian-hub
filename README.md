@@ -26,9 +26,11 @@ Go to https://id.atlassian.com/manage-profile/security/api-tokens and create a t
 
 > For Server/Data Center, use a Personal Access Token instead. See [Authentication](https://atlassian-hub.soomiles.com/docs/authentication).
 
-### 2. Configure Your IDE
+### 2. Configure Your Client
 
-Add to your Claude Desktop or Cursor MCP configuration:
+Add `atlassian-hub` to your MCP client. Pick the tab matching your setup — the env block is the same across all of them, only the surrounding config format differs.
+
+**Claude Desktop / Cursor** (`~/Library/Application Support/Claude/claude_desktop_config.json` on macOS, `%APPDATA%\Claude\claude_desktop_config.json` on Windows):
 
 ```json
 {
@@ -48,6 +50,103 @@ Add to your Claude Desktop or Cursor MCP configuration:
   }
 }
 ```
+
+<details>
+<summary><b>Claude Code</b> (Anthropic CLI)</summary>
+
+One-liner via the `claude mcp` command:
+
+```bash
+claude mcp add atlassian-hub uvx atlassian-hub \
+  -e JIRA_URL=https://your-company.atlassian.net \
+  -e JIRA_USERNAME=your.email@company.com \
+  -e JIRA_API_TOKEN=your_api_token \
+  -e CONFLUENCE_URL=https://your-company.atlassian.net/wiki \
+  -e CONFLUENCE_USERNAME=your.email@company.com \
+  -e CONFLUENCE_API_TOKEN=your_api_token
+```
+
+Or edit `~/.claude.json` (user-scope) / `.mcp.json` (project-scope) with the same JSON shape as the Claude Desktop example above.
+
+</details>
+
+<details>
+<summary><b>Codex</b> (OpenAI CLI)</summary>
+
+Edit `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.atlassian-hub]
+command = "uvx"
+args = ["atlassian-hub"]
+
+[mcp_servers.atlassian-hub.env]
+JIRA_URL = "https://your-company.atlassian.net"
+JIRA_USERNAME = "your.email@company.com"
+JIRA_API_TOKEN = "your_api_token"
+CONFLUENCE_URL = "https://your-company.atlassian.net/wiki"
+CONFLUENCE_USERNAME = "your.email@company.com"
+CONFLUENCE_API_TOKEN = "your_api_token"
+```
+
+</details>
+
+<details>
+<summary><b>GitHub Copilot</b> (VS Code MCP)</summary>
+
+Create `.vscode/mcp.json` in your workspace (or add under `"mcp.servers"` in VS Code settings):
+
+```json
+{
+  "servers": {
+    "atlassian-hub": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["atlassian-hub"],
+      "env": {
+        "JIRA_URL": "https://your-company.atlassian.net",
+        "JIRA_USERNAME": "your.email@company.com",
+        "JIRA_API_TOKEN": "your_api_token",
+        "CONFLUENCE_URL": "https://your-company.atlassian.net/wiki",
+        "CONFLUENCE_USERNAME": "your.email@company.com",
+        "CONFLUENCE_API_TOKEN": "your_api_token"
+      }
+    }
+  }
+}
+```
+
+For secrets, prefer `${input:jira_token}` placeholders with `inputs[].type = "promptString"` rather than committing tokens to the file.
+
+</details>
+
+<details>
+<summary><b>opencode</b></summary>
+
+Edit `opencode.json` (project-scope) or `~/.config/opencode/opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "atlassian-hub": {
+      "type": "local",
+      "command": ["uvx", "atlassian-hub"],
+      "enabled": true,
+      "environment": {
+        "JIRA_URL": "https://your-company.atlassian.net",
+        "JIRA_USERNAME": "your.email@company.com",
+        "JIRA_API_TOKEN": "your_api_token",
+        "CONFLUENCE_URL": "https://your-company.atlassian.net/wiki",
+        "CONFLUENCE_USERNAME": "your.email@company.com",
+        "CONFLUENCE_API_TOKEN": "your_api_token"
+      }
+    }
+  }
+}
+```
+
+</details>
 
 > **Server/Data Center users**: Use `JIRA_PERSONAL_TOKEN` instead of `JIRA_USERNAME` + `JIRA_API_TOKEN`. See [Authentication](https://atlassian-hub.soomiles.com/docs/authentication) for details.
 
