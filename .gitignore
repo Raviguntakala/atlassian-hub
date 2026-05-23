@@ -86,6 +86,7 @@ playground/
 # Claude
 .claude/worktrees/
 .claude/settings.local.json
+.claude/skills/
 
 # Dev docs (local task documents)
 dev/
