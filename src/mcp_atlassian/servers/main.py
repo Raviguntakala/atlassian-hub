@@ -1,10 +1,12 @@
 """Main FastMCP server setup for Atlassian integration."""
 
+import asyncio
 import base64
+import functools
 import json
 import logging
 import os
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Sequence
 from contextlib import asynccontextmanager
 from typing import Any, Literal, Optional
 from urllib.parse import urlparse
@@ -34,6 +36,7 @@ from mcp_atlassian.utils.oauth import (
     CLOUD_TOKEN_URL,
     DC_AUTHORIZE_PATH,
     DC_TOKEN_PATH,
+    OAuthConfig,
 )
 from mcp_atlassian.utils.token_verifier import AtlassianOpaqueTokenVerifier
 from mcp_atlassian.utils.tools import get_enabled_tools, should_include_tool
@@ -118,6 +121,74 @@ async def health_check(request: Request) -> JSONResponse:
     return JSONResponse({"status": "ok"})
 
 
+async def _try_auto_oauth(
+    config: JiraConfig | ConfluenceConfig,
+    service_name: str,
+) -> bool:
+    """Attempt an automatic browser-based OAuth flow when credentials are
+    present but no stored tokens exist.
+
+    If the config does not need auto-OAuth (wrong auth type, missing creds, or
+    tokens already present), returns False without running the flow.
+
+    The blocking ``run_oauth_flow`` call (which waits for a browser callback
+    via ``time.sleep``) is offloaded to a thread so the async event loop is
+    not blocked during server startup.
+
+    Args:
+        config: The Jira or Confluence config to check and optionally run flow for.
+        service_name: Display name for logging (e.g. "Jira", "Confluence").
+
+    Returns:
+        True if the flow succeeded and tokens were stored, False otherwise.
+    """
+    if config.auth_type != "oauth":
+        return False
+    oauth_cfg = config.oauth_config
+    if not (
+        isinstance(oauth_cfg, OAuthConfig)
+        and bool(oauth_cfg.client_id)
+        and bool(oauth_cfg.client_secret)
+        and not oauth_cfg.access_token
+        and not oauth_cfg.refresh_token
+    ):
+        return False
+
+    from mcp_atlassian.utils.oauth_setup import OAuthSetupArgs, run_oauth_flow
+
+    logger.info(
+        "%s OAuth credentials found but no stored tokens. "
+        "Initiating browser authorization flow...",
+        service_name,
+    )
+    args = OAuthSetupArgs(
+        client_id=oauth_cfg.client_id,
+        client_secret=oauth_cfg.client_secret,
+        redirect_uri=oauth_cfg.redirect_uri,
+        scope=oauth_cfg.scope,
+        base_url=oauth_cfg.base_url,
+    )
+    try:
+        loop = asyncio.get_running_loop()
+        success = await loop.run_in_executor(
+            None, functools.partial(run_oauth_flow, args)
+        )
+        if success:
+            logger.info("%s OAuth browser flow completed successfully.", service_name)
+            return True
+    except Exception:
+        logger.exception(
+            "%s OAuth browser flow raised an unexpected error.", service_name
+        )
+
+    logger.error(
+        "%s OAuth browser flow failed. %s tools may be unavailable.",
+        service_name,
+        service_name,
+    )
+    return False
+
+
 @asynccontextmanager
 async def main_lifespan(app: FastMCP[MainAppContext]) -> AsyncIterator[dict[str, Any]]:
     logger.info("Main Atlassian MCP server lifespan starting...")
@@ -133,13 +204,21 @@ async def main_lifespan(app: FastMCP[MainAppContext]) -> AsyncIterator[dict[str,
         try:
             jira_config = JiraConfig.from_env()
             if jira_config.is_auth_configured():
+                if await _try_auto_oauth(jira_config, "Jira"):
+                    jira_config = JiraConfig.from_env()
                 loaded_jira_config = jira_config
                 logger.info(
                     "Jira configuration loaded and authentication is configured."
                 )
+            elif await _try_auto_oauth(jira_config, "Jira"):
+                jira_config = JiraConfig.from_env()
+                if jira_config.is_auth_configured():
+                    loaded_jira_config = jira_config
+                    logger.info("Jira configuration loaded after OAuth browser flow.")
             else:
                 logger.warning(
-                    "Jira URL found, but authentication is not fully configured. Jira tools will be unavailable."
+                    "Jira URL found, but authentication is not fully "
+                    "configured. Jira tools will be unavailable."
                 )
         except Exception as e:
             logger.error(f"Failed to load Jira configuration: {e}", exc_info=True)
@@ -148,16 +227,30 @@ async def main_lifespan(app: FastMCP[MainAppContext]) -> AsyncIterator[dict[str,
         try:
             confluence_config = ConfluenceConfig.from_env()
             if confluence_config.is_auth_configured():
+                if await _try_auto_oauth(confluence_config, "Confluence"):
+                    confluence_config = ConfluenceConfig.from_env()
                 loaded_confluence_config = confluence_config
                 logger.info(
                     "Confluence configuration loaded and authentication is configured."
                 )
+            elif await _try_auto_oauth(confluence_config, "Confluence"):
+                confluence_config = ConfluenceConfig.from_env()
+                if confluence_config.is_auth_configured():
+                    loaded_confluence_config = confluence_config
+                    logger.info(
+                        "Confluence configuration loaded after OAuth browser flow."
+                    )
             else:
                 logger.warning(
-                    "Confluence URL found, but authentication is not fully configured. Confluence tools will be unavailable."
+                    "Confluence URL found, but authentication is not "
+                    "fully configured. Confluence tools will be "
+                    "unavailable."
                 )
         except Exception as e:
-            logger.error(f"Failed to load Confluence configuration: {e}", exc_info=True)
+            logger.error(
+                f"Failed to load Confluence configuration: {e}",
+                exc_info=True,
+            )
 
     app_context = MainAppContext(
         full_jira_config=loaded_jira_config,
@@ -210,6 +303,8 @@ class AtlassianMCP(FastMCP[MainAppContext]):
         return self._normalize_http_path(fastmcp_settings.streamable_http_path)
 
     async def _list_tools_mcp(self) -> list[MCPTool]:
+        # Deferred: evaluate replacing this override with a native FastMCP 3.x
+        # extension surface. See Troubladore/mcp-atlassian#326.
         # Filter tools based on enabled_tools, read_only mode, and service configuration from the lifespan context.
         req_context = self._mcp_server.request_context
         if req_context is None or req_context.lifespan_context is None:
@@ -254,13 +349,14 @@ class AtlassianMCP(FastMCP[MainAppContext]):
             f"_list_tools_mcp: read_only={read_only}, enabled_tools_filter={enabled_tools_filter}, header_services={header_based_services}"
         )
 
-        all_tools: dict[str, FastMCPTool] = await self.get_tools()
+        all_tools: Sequence[FastMCPTool] = await self.list_tools()
         logger.debug(
-            f"Aggregated {len(all_tools)} tools before filtering: {list(all_tools.keys())}"
+            f"Aggregated {len(all_tools)} tools before filtering: {[t.name for t in all_tools]}"
         )
 
         filtered_tools: list[MCPTool] = []
-        for registered_name, tool_obj in all_tools.items():
+        for tool_obj in all_tools:
+            registered_name = tool_obj.name
             tool_tags = tool_obj.tags
 
             if not should_include_tool_by_toolset(tool_tags, enabled_toolsets_filter):
@@ -338,6 +434,8 @@ class AtlassianMCP(FastMCP[MainAppContext]):
         event_store: EventStore | None = None,
         retry_interval: int | None = None,
     ) -> StarletteWithLifespan:
+        # Deferred: evaluate replacing this override with a native FastMCP 3.x
+        # extension surface. See Troubladore/mcp-atlassian#326.
         final_path = path
         if transport == "streamable-http":
             configured_path = path or fastmcp_settings.streamable_http_path
@@ -361,7 +459,7 @@ class AtlassianMCP(FastMCP[MainAppContext]):
 
 
 token_validation_cache: TTLCache[
-    int, tuple[bool, str | None, JiraFetcher | None, ConfluenceFetcher | None], float
+    int, tuple[bool, str | None, JiraFetcher | None, ConfluenceFetcher | None]
 ] = TTLCache(maxsize=100, ttl=300)
 
 
@@ -667,7 +765,12 @@ class UserTokenMiddleware:
         elif auth_header.strip():
             # Non-empty but unsupported auth type
             auth_value = auth_header.strip()
-            auth_type = auth_value.split(" ", 1)[0] if " " in auth_value else auth_value
+            if " " in auth_value:
+                auth_type = auth_value.split(" ", 1)[0]
+            else:
+                # No space means no type prefix — likely a raw token.
+                # Redact to avoid leaking credentials in logs (OWASP/CWE-532).
+                auth_type = "<redacted>"
             logger.warning(f"Unsupported Authorization type: {auth_type}")
             scope["state"]["auth_validation_error"] = (
                 "Unauthorized: Only 'Bearer <OAuthToken>', "
@@ -740,19 +843,22 @@ def _build_auth_provider() -> HardenedOAuthProxy | None:
         or os.getenv("JIRA_OAUTH_CLIENT_ID")
         or os.getenv("CONFLUENCE_OAUTH_CLIENT_ID")
     )
+    redirect_uri = os.getenv("ATLASSIAN_OAUTH_REDIRECT_URI")
+    scope_env = os.getenv("ATLASSIAN_OAUTH_SCOPE", "")
+
+    if not all([instance_url, client_id, redirect_uri]):
+        logger.warning(
+            "OAuth proxy requested but non-secret configuration is incomplete."
+        )
+        return None
+
     client_secret = (
         os.getenv("ATLASSIAN_OAUTH_CLIENT_SECRET")
         or os.getenv("JIRA_OAUTH_CLIENT_SECRET")
         or os.getenv("CONFLUENCE_OAUTH_CLIENT_SECRET")
     )
-    redirect_uri = os.getenv("ATLASSIAN_OAUTH_REDIRECT_URI")
-    scope_env = os.getenv("ATLASSIAN_OAUTH_SCOPE", "")
-
-    if not all([instance_url, client_id, client_secret, redirect_uri]):
-        logger.warning(
-            "OAuth proxy requested but required vars are missing. "
-            "Need instance URL + client credentials + redirect URI."
-        )
+    if not client_secret:
+        logger.warning("OAuth proxy requested but client secret is not configured.")
         return None
 
     scopes = [s for part in scope_env.replace(",", " ").split() if (s := part)]
@@ -815,8 +921,8 @@ main_mcp = AtlassianMCP(
     lifespan=main_lifespan,
     auth=_build_auth_provider(),
 )
-main_mcp.mount(jira_mcp, "jira")
-main_mcp.mount(confluence_mcp, "confluence")
+main_mcp.mount(jira_mcp, namespace="jira")
+main_mcp.mount(confluence_mcp, namespace="confluence")
 
 
 @main_mcp.custom_route("/healthz", methods=["GET"], include_in_schema=False)
